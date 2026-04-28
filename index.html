@@ -213,7 +213,181 @@
     cursor: pointer; white-space: nowrap; flex-shrink: 0;
     box-shadow: 0 3px 10px rgba(107,174,138,0.3);
   }
-< truncated lines 216-390 >
+  .dl-btn:active { background: var(--green-dark); }
+
+  .prog-row { display: none; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .prog-bg { flex: 1; height: 4px; background: var(--border); border-radius: 10px; overflow: hidden; }
+  .prog-fill { height: 100%; background: linear-gradient(90deg, var(--purple), #B0A0F0); border-radius: 10px; width: 0%; transition: width 0.25s ease; }
+  .prog-label { font-size: 11px; font-weight: 600; color: var(--text-sub); white-space: nowrap; min-width: 54px; text-align: right; }
+
+  .main-btn {
+    width: 100%; padding: 17px;
+    background: linear-gradient(135deg, var(--purple), #7B8FD4);
+    color: #fff; border: none; border-radius: 16px;
+    font-family: inherit; font-size: 16px; font-weight: 700;
+    letter-spacing: 0.03em; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 6px 20px rgba(155,127,212,0.35);
+    transition: all 0.2s;
+  }
+  .main-btn:active:not(:disabled) { transform: scale(0.98); box-shadow: 0 2px 10px rgba(155,127,212,0.2); }
+  .main-btn:disabled { background: linear-gradient(135deg,#C8C0DC,#C0C8E0); box-shadow: none; cursor: not-allowed; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">✦ Etsy Clipart Tool</div>
+  <h1>Dpi<span>Drop</span></h1>
+  <p class="header-sub">背景透過PNGを300dpiに一括変換。<br>Etsyのクリップアート販売に最適です。</p>
+</div>
+
+<div class="section">
+  <div class="drop-zone" id="drop-zone">
+    <div class="drop-flower">🌸</div>
+    <div class="drop-main">PNGをここにドロップ</div>
+    <div class="drop-sub">またはクリックしてファイルを選択</div>
+    <div class="drop-tags">
+      <span>PNG</span><span>複数ファイル対応</span><span>透過保持</span><span>ZIP出力</span>
+    </div>
+    <input type="file" id="file-input" accept="image/png" multiple>
+  </div>
+</div>
+
+<div class="section">
+  <div class="settings-card">
+    <div class="settings-label">解像度</div>
+    <div class="dpi-buttons">
+      <button class="dpi-btn" data-dpi="72">72 dpi</button>
+      <button class="dpi-btn" data-dpi="150">150 dpi</button>
+      <button class="dpi-btn active" data-dpi="300">300 dpi</button>
+      <button class="dpi-btn" data-dpi="600">600 dpi</button>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="settings-label">目標サイズ（長辺）</div>
+    <div class="size-buttons">
+      <button class="size-btn active" data-size="0">そのまま</button>
+      <button class="size-btn" data-size="2000">2000px</button>
+      <button class="size-btn" data-size="3000">3000px</button>
+      <button class="size-btn" data-size="4000">4000px ✦</button>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="file-section" style="display:none">
+  <div class="file-list-top">
+    <div class="file-total" id="file-total"></div>
+    <button class="clear-all-btn" onclick="clearAll()">すべて削除</button>
+  </div>
+  <div class="file-items" id="file-items"></div>
+</div>
+
+<div class="section">
+  <div class="note-card">
+    <strong>メモ：</strong> PNGの pHYsチャンク（解像度メタデータ）を書き換えます。ピクセル数・透過情報はそのまま保持されます。ファイル名は <strong>元のファイル名_300dpi.png</strong> で保存されます。
+  </div>
+</div>
+
+<div class="action-area">
+  <div class="dl-card" id="dl-card">
+    <div class="dl-bow">🧺</div>
+    <div class="dl-info">
+      <div class="dl-title">ZIPファイルの準備が<br>できました</div>
+      <div class="dl-sub" id="dl-sub"></div>
+    </div>
+    <button class="dl-btn" id="dl-btn">ダウンロード</button>
+  </div>
+  <div class="prog-row" id="prog-row">
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog-label" id="prog-label"></div>
+  </div>
+  <button class="main-btn" id="main-btn" disabled>
+    <span id="btn-text">変換して ZIP ダウンロード</span><span>🌿</span>
+  </button>
+</div>
+
+<script>
+// ── ZIP builder (no deps) ────────────────────────────────
+const ZIP = (() => {
+  const enc = new TextEncoder();
+  function crc32(d) {
+    const T = (() => { const t=new Uint32Array(256); for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;} return t; })();
+    let c=0xFFFFFFFF; for(let i=0;i<d.length;i++) c=T[(c^d[i])&0xFF]^(c>>>8); return(c^0xFFFFFFFF)>>>0;
+  }
+  function u16(n){return[n&0xFF,(n>>8)&0xFF];}
+  function u32(n){return[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];}
+  function cat(...a){const t=a.reduce((s,x)=>s+x.length,0);const o=new Uint8Array(t);let p=0;for(const x of a){o.set(x,p);p+=x.length;}return o;}
+  return {
+    create(){
+      const files=[];
+      return {
+        add(name,data){
+          const nb=enc.encode(name);
+          files.push({nb,crc:crc32(data),size:data.length,data});
+        },
+        build(){
+          const locals=[],cdirs=[];let off=0;
+          for(const f of files){
+            const lh=new Uint8Array([0x50,0x4B,0x03,0x04,...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(f.crc),...u32(f.size),...u32(f.size),...u16(f.nb.length),...u16(0)]);
+            const local=cat(lh,f.nb,f.data);
+            const cd=new Uint8Array([0x50,0x4B,0x01,0x02,...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(f.crc),...u32(f.size),...u32(f.size),...u16(f.nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]);
+            locals.push(local);cdirs.push(cat(cd,f.nb));off+=local.length;
+          }
+          const cdir=cat(...cdirs);
+          const eocd=new Uint8Array([0x50,0x4B,0x05,0x06,...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cdir.length),...u32(off),...u16(0)]);
+          return cat(...locals,cdir,eocd);
+        }
+      };
+    }
+  };
+})();
+
+// ── pHYs rewriter ────────────────────────────────────────
+const CRCT=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;}return t;})();
+function pcrc(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRCT[(c^b[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
+function b32(n){return new Uint8Array([(n>>>24)&0xFF,(n>>>16)&0xFF,(n>>>8)&0xFF,n&0xFF]);}
+function cat2(...a){const t=a.reduce((s,x)=>s+x.length,0);const o=new Uint8Array(t);let p=0;for(const x of a){o.set(x,p);p+=x.length;}return o;}
+
+function rewritePHYs(ab, dpi) {
+  const ppm=Math.round(dpi/0.0254);
+  const src=new Uint8Array(ab);
+  let pos=8; const chunks=[];
+  while(pos<src.length){
+    if(pos+8>src.length)break;
+    const len=((src[pos]<<24)|(src[pos+1]<<16)|(src[pos+2]<<8)|src[pos+3])>>>0;
+    const type=String.fromCharCode(src[pos+4],src[pos+5],src[pos+6],src[pos+7]);
+    const tot=4+4+len+4;
+    if(pos+tot>src.length)break;
+    chunks.push({type,start:pos,tot});
+    pos+=tot;
+  }
+  const pt=new Uint8Array([0x70,0x48,0x59,0x73]);
+  const pd=new Uint8Array([...b32(ppm),...b32(ppm),1]);
+  const np=cat2(b32(9),pt,pd,b32(pcrc(cat2(pt,pd))));
+  const parts=[src.slice(0,8)]; let inj=false;
+  for(const c of chunks){
+    if(c.type==='pHYs')continue;
+    parts.push(src.slice(c.start,c.start+c.tot));
+    if(c.type==='IHDR'&&!inj){parts.push(np);inj=true;}
+  }
+  if(!inj)parts.splice(1,0,np);
+  return cat2(...parts);
+}
+
+// ── iOS-safe download via base64 data URL ───────────────
+function downloadZip(bytes, filename) {
+  // Convert to base64 in chunks to avoid stack overflow on large files
+  let binary = '';
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode.apply(null, chunk);
+  }
+  const base64 = btoa(binary);
+  const dataUrl = 'data:application/zip;base64,' + base64;
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
