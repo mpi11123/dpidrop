@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>DpiDrop</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #F0EDF8;
+    --surface: #FFFFFF;
+    --surface2: #F7F4FC;
+    --purple: #9B7FD4;
+    --purple-dark: #7B5BB8;
+    --purple-light: #C4B0E8;
+    --purple-pale: #EDE8F8;
+    --green: #6BAE8A;
+    --green-dark: #4D9270;
+    --green-pale: #E8F5EE;
+    --text: #2A1F3D;
+    --text-sub: #7A6E8A;
+    --border: #DDD5F0;
+    --shadow: rgba(100,80,160,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    min-height: 100vh;
+    padding-bottom: 200px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #C4B0E8 0%, #B8D4F0 100%);
+    padding: 56px 20px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '✦';
+    position: absolute;
+    right: 24px; top: 28px;
+    font-size: 48px;
+    color: rgba(255,255,255,0.25);
+    line-height: 1;
+  }
+  .header-eyebrow {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.75); margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 32px; font-weight: 700; color: #fff;
+    line-height: 1.15; margin-bottom: 8px;
+    text-shadow: 0 2px 12px rgba(80,50,140,0.18);
+  }
+  .header h1 span { color: rgba(255,255,255,0.7); font-weight: 400; }
+  .header-sub { font-size: 12px; color: rgba(255,255,255,0.8); line-height: 1.6; }
+
+  .section { padding: 14px 16px 0; }
+
+  .drop-zone {
+    background: var(--surface);
+    border: 2px dashed var(--purple-light);
+    border-radius: 20px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .drop-zone.active { border-color: var(--purple); background: var(--purple-pale); }
+  .drop-zone:active { background: var(--purple-pale); }
+
+  .drop-flower {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, #E8D8F8, #D0E8F8);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin: 0 auto 14px;
+    box-shadow: 0 4px 16px rgba(155,127,212,0.2);
+  }
+  .drop-main { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 5px; }
+  .drop-sub { font-size: 12px; color: var(--text-sub); margin-bottom: 16px; }
+  .drop-tags {
+    display: inline-flex;
+    background: var(--purple-pale);
+    border-radius: 30px; padding: 7px 16px; gap: 0;
+  }
+  .drop-tags span { font-size: 10px; color: var(--purple-dark); font-weight: 600; letter-spacing: 0.04em; }
+  .drop-tags span:not(:last-child)::after { content: ' · '; color: var(--purple-light); }
+  #file-input { display: none; }
+
+  .settings-card {
+    background: var(--surface); border-radius: 18px;
+    padding: 18px; border: 1px solid var(--border);
+    box-shadow: 0 2px 12px var(--shadow); margin-top: 14px;
+  }
+  .settings-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--text-sub); margin-bottom: 12px;
+  }
+  .dpi-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .dpi-btn {
+    flex: 1; min-width: 64px; padding: 10px 6px;
+    border-radius: 30px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text-sub);
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-align: center; transition: all 0.15s;
+  }
+  .dpi-btn.active {
+    background: var(--purple); border-color: var(--purple);
+    color: #fff; box-shadow: 0 4px 12px rgba(155,127,212,0.35);
+  }
+
+  .settings-divider { height: 1px; background: var(--border); margin: 14px 0; }
+  .size-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+  .size-btn {
+    flex: 1; min-width: 64px; padding: 10px 6px;
+    border-radius: 30px; border: 1.5px solid var(--border);
+    background: var(--surface2); color: var(--text-sub);
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; text-align: center; transition: all 0.15s;
+  }
+  .size-btn.active {
+    background: var(--purple); border-color: var(--purple);
+    color: #fff; box-shadow: 0 4px 12px rgba(155,127,212,0.35);
+  }
+
+  .file-list-top {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 18px 0 10px;
+  }
+  .file-total { font-size: 13px; font-weight: 700; color: var(--text); }
+  .file-total span { color: var(--text-sub); font-weight: 400; }
+  .clear-all-btn {
+    background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 5px 14px;
+    font-family: inherit; font-size: 11px; font-weight: 600;
+    color: var(--text-sub); cursor: pointer;
+  }
+  .clear-all-btn:active { background: var(--purple-pale); color: var(--purple); }
+
+  .file-items { display: flex; flex-direction: column; gap: 8px; }
+
+  .file-item {
+    background: var(--surface); border-radius: 14px;
+    border: 1.5px solid var(--border);
+    padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+    transition: border-color 0.2s, background 0.2s;
+    box-shadow: 0 1px 6px var(--shadow);
+  }
+  .file-item.done { border-color: #A8D8B8; background: var(--green-pale); }
+  .file-item.processing { border-color: var(--purple-light); background: var(--purple-pale); }
+  .file-item.error { border-color: #F0B0B0; background: #FFF0F0; }
+
+  .file-thumb {
+    width: 48px; height: 48px; border-radius: 10px;
+    overflow: hidden; flex-shrink: 0;
+    background: repeating-conic-gradient(#ddd 0% 25%, #fff 0% 50%) 0 0 / 8px 8px;
+    border: 1px solid var(--border);
+  }
+  .file-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+  .file-sz { font-size: 11px; color: var(--text-sub); }
+
+  .status-pill {
+    flex-shrink: 0; font-size: 11px; font-weight: 600;
+    padding: 5px 12px; border-radius: 20px;
+    border: 1.5px solid var(--border); color: var(--text-sub);
+    background: var(--surface2); white-space: nowrap;
+  }
+  .status-pill.processing { color: var(--purple-dark); border-color: var(--purple-light); background: #fff; }
+  .status-pill.done { color: var(--green-dark); border-color: #A8D8B8; background: #fff; }
+  .status-pill.error { color: #C04040; border-color: #F0B0B0; background: #fff; }
+
+  .rm-btn { background: none; border: none; cursor: pointer; color: #C0B8D0; font-size: 18px; padding: 2px 4px; line-height: 1; flex-shrink: 0; }
+  .rm-btn:active { color: var(--purple); }
+
+  .note-card {
+    background: var(--surface); border-radius: 14px;
+    border: 1px solid var(--border); padding: 14px 16px; margin-top: 14px;
+    font-size: 11px; color: var(--text-sub); line-height: 1.75;
+  }
+  .note-card strong { color: var(--purple-dark); font-weight: 700; }
+
+  /* Sticky bottom */
+  .action-area {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(240,237,248,0.97);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    padding: 12px 16px 36px; border-top: 1px solid var(--border);
+  }
+
+  .dl-card {
+    background: var(--surface); border-radius: 16px;
+    border: 1.5px solid var(--border);
+    padding: 14px 16px; display: none; align-items: center; gap: 14px;
+    margin-bottom: 10px; box-shadow: 0 2px 12px var(--shadow);
+  }
+  .dl-bow { font-size: 30px; flex-shrink: 0; }
+  .dl-info { flex: 1; }
+  .dl-title { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 3px; }
+  .dl-sub { font-size: 11px; color: var(--text-sub); }
+  .dl-btn {
+    background: var(--green); color: #fff; border: none; border-radius: 12px;
+    padding: 11px 16px; font-family: inherit; font-size: 13px; font-weight: 700;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(107,174,138,0.3);
+  }
+< truncated lines 216-390 >
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ── UI state ─────────────────────────────────────────────
+let files=[], zipBytes=null, uid=0, selDPI=300, selSize=0;
+
+document.querySelectorAll('.dpi-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.dpi-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selDPI=parseInt(btn.dataset.dpi);
+  });
+});
+
+document.querySelectorAll('.size-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    selSize=parseInt(btn.dataset.size);
+  });
+});
+
+// ── Upscale via Canvas ────────────────────────────────────
+function upscaleImage(file, targetPx) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const longer = Math.max(img.width, img.height);
+      if (longer >= targetPx) { resolve(null); return; } // already big enough
+      const scale = targetPx / longer;
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(blob => {
+        if (!blob) { reject(new Error('canvas failed')); return; }
+        blob.arrayBuffer().then(buf => resolve(new Uint8Array(buf))).catch(reject);
+      }, 'image/png');
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('load failed')); };
+    img.src = url;
+  });
+}
+
+const dz=document.getElementById('drop-zone');
+const fi=document.getElementById('file-input');
+dz.addEventListener('click',()=>fi.click());
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('active');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('active'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('active');addFiles([...e.dataTransfer.files].filter(f=>f.type==='image/png'));});
+fi.addEventListener('change',()=>{addFiles([...fi.files]);fi.value='';});
+
+function addFiles(nf){
+  nf.forEach(f=>files.push({file:f,id:uid++,url:URL.createObjectURL(f),status:'waiting'}));
+  render();syncBtn();resetDL();
+}
+function removeFile(id){
+  const i=files.findIndex(e=>e.id===id);
+  if(i!==-1){URL.revokeObjectURL(files[i].url);files.splice(i,1);}
+  render();syncBtn();resetDL();
+}
+function clearAll(){
+  files.forEach(e=>URL.revokeObjectURL(e.url));files=[];
+  render();syncBtn();resetDL();
+}
+
+function render(){
+  const sec=document.getElementById('file-section');
+  const items=document.getElementById('file-items');
+  const tot=document.getElementById('file-total');
+  sec.style.display=files.length?'block':'none';
+  const mb=(files.reduce((s,e)=>s+e.file.size,0)/1024/1024).toFixed(1);
+  tot.innerHTML=`${files.length}枚 <span>· ${mb} MB</span>`;
+  items.innerHTML='';
+  files.forEach(e=>{
+    const kb=Math.round(e.file.size/1024);
+    const sz=kb>=1024?`${(kb/1024).toFixed(1)} MB`:`${kb} KB`;
+    const lbl={waiting:'待機中',processing:'変換中...',done:'✓ 完了',error:'エラー'};
+    const d=document.createElement('div');
+    d.className=`file-item${e.status!=='waiting'?' '+e.status:''}`;
+    d.id=`fi-${e.id}`;
+    d.innerHTML=`
+      <div class="file-thumb"><img src="${e.url}" loading="lazy"></div>
+      <div class="file-info">
+        <div class="file-name">${e.file.name}</div>
+        <div class="file-sz">${sz}</div>
+      </div>
+      <span class="status-pill ${e.status}" id="sp-${e.id}">${lbl[e.status]}</span>
+      <button class="rm-btn" onclick="removeFile(${e.id})">×</button>
+    `;
+    items.appendChild(d);
+  });
+}
+
+// ★ setStatus now forces a paint via requestAnimationFrame
+function setStatus(id, st){
+  return new Promise(resolve=>{
+    const e=files.find(f=>f.id===id);if(e)e.status=st;
+    const item=document.getElementById(`fi-${id}`);
+    const pill=document.getElementById(`sp-${id}`);
+    if(!item||!pill){resolve();return;}
+    const lbl={waiting:'待機中',processing:'変換中...',done:'✓ 完了',error:'エラー'};
+    item.className=`file-item${st!=='waiting'?' '+st:''}`;
+    pill.className=`status-pill ${st}`;
+    pill.textContent=lbl[st]||st;
+    // Force repaint before continuing
+    requestAnimationFrame(()=>requestAnimationFrame(resolve));
+  });
+}
+
+function syncBtn(){document.getElementById('main-btn').disabled=files.length===0;}
+function resetDL(){zipBytes=null;document.getElementById('dl-card').style.display='none';document.getElementById('btn-text').textContent='変換して ZIP ダウンロード';}
+
+// ── Main process ─────────────────────────────────────────
+document.getElementById('main-btn').addEventListener('click', async ()=>{
+  if(!files.length)return;
+  const dpi=selDPI;
+  const btn=document.getElementById('main-btn');
+  const progRow=document.getElementById('prog-row');
+  const progFill=document.getElementById('prog-fill');
+  const progLabel=document.getElementById('prog-label');
+  const dlCard=document.getElementById('dl-card');
+
+  btn.disabled=true;
+  progRow.style.display='flex';
+  progFill.style.width='0%';
+  dlCard.style.display='none';
+  zipBytes=null;
+
+  // Reset all to waiting first
+  for(const e of files) await setStatus(e.id,'waiting');
+
+  const zip=ZIP.create();
+  let done=0,errs=0;
+
+  for(let i=0;i<files.length;i++){
+    const e=files[i];
+
+    // Show "変換中..." and wait for paint
+    await setStatus(e.id,'processing');
+    document.getElementById(`fi-${e.id}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
+
+    progLabel.textContent=`${i+1} / ${files.length}`;
+    progFill.style.width=`${Math.round(i/files.length*88)}%`;
+
+    // Small delay to let Safari render the UI change
+    await new Promise(r=>setTimeout(r,80));
+
+    try{
+      let data;
+      if(selSize > 0) {
+        try {
+          const upscaled = await upscaleImage(e.file, selSize);
+          if(upscaled) {
+            data = rewritePHYs(upscaled.buffer, dpi);
+          } else {
+            const buf = await e.file.arrayBuffer();
+            data = rewritePHYs(buf, dpi);
+          }
+        } catch(upscaleErr) {
+          // Upscale failed (e.g. iOS security) → fall back to DPI-only
+          console.warn('upscale failed, falling back:', upscaleErr);
+          const buf = await e.file.arrayBuffer();
+          data = rewritePHYs(buf, dpi);
+        }
+      } else {
+        const buf=await e.file.arrayBuffer();
+        data=rewritePHYs(buf,dpi);
+      }
+      const name=e.file.name.replace(/\.png$/i,'')+`_${dpi}dpi.png`;
+      zip.add(name,data);
+      done++;
+      await setStatus(e.id,'done');
+    }catch(err){
+      console.error(e.file.name,err);
+      errs++;
+      await setStatus(e.id,'error');
+    }
+  }
+
+  progLabel.textContent='ZIP生成中...';
+  await new Promise(r=>setTimeout(r,50));
+
+  try{
+    zipBytes=zip.build();
+    progFill.style.width='100%';
+    const mb=(zipBytes.length/1024/1024).toFixed(1);
+    document.getElementById('dl-sub').textContent=`${done}枚 · ${mb} MB`;
+    dlCard.style.display='flex';
+    progLabel.textContent=errs>0?`完了（${errs}件エラー）`:'完了！';
+    document.getElementById('btn-text').textContent='もう一度変換する 🌿';
+  }catch(err){
+    progLabel.textContent='ZIP生成に失敗しました';
+    console.error(err);
+  }
+  btn.disabled=false;
+});
+
+// ── Download (iOS Safari safe) ───────────────────────────
+document.getElementById('dl-btn').addEventListener('click',()=>{
+  if(!zipBytes)return;
+  downloadZip(zipBytes, `converted_${selDPI}dpi.zip`);
+});
+</script>
+</body>
+</html>
