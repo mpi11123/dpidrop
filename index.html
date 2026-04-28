@@ -239,14 +239,14 @@
 <div class="header">
   <div class="header-eyebrow">✦ Etsy Clipart Tool</div>
   <h1>Dpi<span>Drop</span></h1>
-  <p class="header-sub">背景透過PNGを300dpiに一括変換。<br>Etsyのクリップアート販売に最適です。</p>
+  <p class="header-sub">PNG画像を一括で高解像度に変換。<br>変換したファイルはZIPでまとめてダウンロード。</p>
 </div>
 
 <div class="section">
   <div class="drop-zone" id="drop-zone">
-    <div class="drop-flower">🌸</div>
-    <div class="drop-main">PNGをここにドロップ</div>
-    <div class="drop-sub">またはクリックしてファイルを選択</div>
+    <div class="drop-flower">🧸</div>
+    <div class="drop-main">PNGをタップして選択</div>
+    <div class="drop-sub">複数ファイル一括対応</div>
     <div class="drop-tags">
       <span>PNG</span><span>複数ファイル対応</span><span>透過保持</span><span>ZIP出力</span>
     </div>
@@ -284,7 +284,7 @@
 
 <div class="section">
   <div class="note-card">
-    <strong>メモ：</strong> PNGの pHYsチャンク（解像度メタデータ）を書き換えます。ピクセル数・透過情報はそのまま保持されます。ファイル名は <strong>元のファイル名_300dpi.png</strong> で保存されます。
+    <strong>メモ：</strong> PNGの解像度メタデータを書き換えます。ピクセル数・透過情報はそのまま保持されます。ファイル名は <strong>元のファイル名_300dpi.png</strong> で保存されます。
   </div>
 </div>
 
@@ -302,7 +302,7 @@
     <div class="prog-label" id="prog-label"></div>
   </div>
   <button class="main-btn" id="main-btn" disabled>
-    <span id="btn-text">変換して ZIP ダウンロード</span><span>🌿</span>
+    <span id="btn-text">変換して ZIP ダウンロード</span><span>🧁</span>
   </button>
 </div>
 
@@ -586,7 +586,7 @@ document.getElementById('main-btn').addEventListener('click', async ()=>{
     document.getElementById('dl-sub').textContent=`${done}枚 · ${mb} MB`;
     dlCard.style.display='flex';
     progLabel.textContent=errs>0?`完了（${errs}件エラー）`:'完了！';
-    document.getElementById('btn-text').textContent='もう一度変換する 🌿';
+    document.getElementById('btn-text').textContent='もう一度変換する 🧁';
   }catch(err){
     progLabel.textContent='ZIP生成に失敗しました';
     console.error(err);
