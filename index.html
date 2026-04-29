@@ -378,8 +378,6 @@ body {
     </div>
   </div>
 </div>
-
-<!-- File list -->
 <div class="section" id="file-section" style="display:none">
   <div class="file-list-top">
     <div class="file-total" id="file-total"></div>
@@ -394,7 +392,7 @@ body {
     <div style="color:var(--purple-dark);font-weight:800;font-size:14px;margin-bottom:8px;">note.</div>
     <ul style="list-style:none; padding:0; margin:0;">
       <li style="margin-bottom:6px;">・ 解像度メタデータ（dpi）を書き換えます</li>
-      <li style="margin-bottom:6px;">・ 透過情報はそのまま保持されます</li>
+      <li style="margin-bottom:6px;">・ 透明余白を自動トリミング＋80px余白を追加</li>
       <li style="margin-bottom:6px;">・ アップスケール選択時はピクセル数も変わります</li>
       <li style="margin-bottom:6px;">・ PNG名：<span style="color:#C05080;font-weight:800;">元のファイル名_300dpi.png</span></li>
       <li>・ ZIP名：<span style="color:#C05080;font-weight:800;">dpidrop_300dpi_日付.zip</span></li>
@@ -437,13 +435,39 @@ function upscaleImage(file,targetPx){return new Promise((resolve,reject)=>{const
 
 function downloadZip(bytes,filename){let binary='';const chunkSize=8192;for(let i=0;i<bytes.length;i+=chunkSize){const chunk=bytes.subarray(i,i+chunkSize);binary+=String.fromCharCode.apply(null,chunk);}const base64=btoa(binary);const dataUrl='data:application/zip;base64,'+base64;const a=document.createElement('a');a.href=dataUrl;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);}
 
-let files=[],zipBytes=null,uid=0,selDPI=300,selSize=0;
+let files=[],zipBytes=null,uid=0,selDPI=300,selSize=0,selTrim=0;
 
 function updateHeartColors(){document.querySelectorAll('.heart-btn').forEach(btn=>{const fill=btn.querySelector('.heart-fill');const hc=btn.dataset.hc||'#C4A8E8';const hs=btn.dataset.hs||'#7B5CC8';if(btn.classList.contains('active')){fill.style.fill=hc;fill.style.stroke=hs;fill.style.strokeWidth='2.5';}else{fill.style.fill=hc+'55';fill.style.stroke=hc;fill.style.strokeWidth='2';}});}
 
 document.querySelectorAll('[data-dpi]').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('[data-dpi]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selDPI=parseInt(btn.dataset.dpi);updateHeartColors();});});
 document.querySelectorAll('[data-size]').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('[data-size]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selSize=parseInt(btn.dataset.size);updateHeartColors();});});
+document.querySelectorAll('[data-trim]').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('[data-trim]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selTrim=parseInt(btn.dataset.trim);updateHeartColors();});});
 updateHeartColors();
+
+// ── Trim transparent pixels ───────────────────────────
+function trimTransparent(canvas, padding) {
+  const ctx = canvas.getContext('2d');
+  const { width, height } = canvas;
+  const data = ctx.getImageData(0, 0, width, height).data;
+  let top = height, bottom = 0, left = width, right = 0;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3] > 0) {
+        if (y < top) top = y;
+        if (y > bottom) bottom = y;
+        if (x < left) left = x;
+        if (x > right) right = x;
+      }
+    }
+  }
+  if (top > bottom || left > right) return canvas;
+  const tw = right - left + 1 + padding * 2;
+  const th = bottom - top + 1 + padding * 2;
+  const out = document.createElement('canvas');
+  out.width = tw; out.height = th;
+  out.getContext('2d').drawImage(canvas, left - padding, top - padding, tw, th, 0, 0, tw, th);
+  return out;
+}
 
 const dz=document.getElementById('drop-zone');
 const fi=document.getElementById('file-input');
@@ -464,7 +488,10 @@ function setStatus(id,st){return new Promise(resolve=>{const e=files.find(f=>f.i
 function syncBtn(){document.getElementById('main-btn').disabled=files.length===0;}
 function resetDL(){zipBytes=null;document.getElementById('dl-card').style.display='none';document.getElementById('btn-text').textContent='変換して ZIP ダウンロード';}
 
-document.getElementById('main-btn').addEventListener('click',async()=>{if(!files.length)return;const dpi=selDPI;const btn=document.getElementById('main-btn');const progRow=document.getElementById('prog-row');const progFill=document.getElementById('prog-fill');const progLabel=document.getElementById('prog-label');const dlCard=document.getElementById('dl-card');btn.disabled=true;progRow.style.display='flex';progFill.style.width='0%';dlCard.style.display='none';zipBytes=null;for(const e of files)await setStatus(e.id,'waiting');const zip=ZIP.create();let done=0,errs=0;for(let i=0;i<files.length;i++){const e=files[i];await setStatus(e.id,'processing');document.getElementById(`fi-${e.id}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});progLabel.textContent=`${i+1} / ${files.length}`;progFill.style.width=`${Math.round(i/files.length*88)}%`;await new Promise(r=>setTimeout(r,80));try{let data;if(selSize>0){try{const up=await upscaleImage(e.file,selSize);data=rewritePHYs(up?up.buffer:await e.file.arrayBuffer(),dpi);}catch(ue){data=rewritePHYs(await e.file.arrayBuffer(),dpi);}}else{data=rewritePHYs(await e.file.arrayBuffer(),dpi);}const name=e.file.name.replace(/\.png$/i,'')+`_${dpi}dpi.png`;zip.add(name,data);done++;await setStatus(e.id,'done');}catch(err){errs++;await setStatus(e.id,'error');}}progLabel.textContent='ZIP生成中...';await new Promise(r=>setTimeout(r,50));try{zipBytes=zip.build();progFill.style.width='100%';const mb=(zipBytes.length/1024/1024).toFixed(1);document.getElementById('dl-sub').textContent=`${done}枚 · ${mb} MB`;dlCard.style.display='flex';progLabel.textContent=errs>0?`完了（${errs}件エラー）`:'完了！';document.getElementById('btn-text').textContent='もう一度変換する 🧺';}catch(err){progLabel.textContent='ZIP生成に失敗しました';}btn.disabled=false;});
+document.getElementById('main-btn').addEventListener('click',async()=>{if(!files.length)return;const dpi=selDPI;const btn=document.getElementById('main-btn');const progRow=document.getElementById('prog-row');const progFill=document.getElementById('prog-fill');const progLabel=document.getElementById('prog-label');const dlCard=document.getElementById('dl-card');btn.disabled=true;progRow.style.display='flex';progFill.style.width='0%';dlCard.style.display='none';zipBytes=null;for(const e of files)await setStatus(e.id,'waiting');const zip=ZIP.create();let done=0,errs=0;for(let i=0;i<files.length;i++){const e=files[i];await setStatus(e.id,'processing');document.getElementById(`fi-${e.id}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});progLabel.textContent=`${i+1} / ${files.length}`;progFill.style.width=`${Math.round(i/files.length*88)}%`;await new Promise(r=>setTimeout(r,80));try{let data;if(selSize>0){try{const up=await upscaleImage(e.file,selSize);data=rewritePHYs(up?up.buffer:await e.file.arrayBuffer(),dpi);}catch(ue){data=rewritePHYs(await e.file.arrayBuffer(),dpi);}}else{data=rewritePHYs(await e.file.arrayBuffer(),dpi);}
+// Trim - always ON with 80px padding
+data=await new Promise((res,rej)=>{const img=new Image();const blob=new Blob([data],{type:'image/png'});const url=URL.createObjectURL(blob);img.onload=()=>{URL.revokeObjectURL(url);const c=document.createElement('canvas');c.width=img.width;c.height=img.height;c.getContext('2d').drawImage(img,0,0);const trimmed=trimTransparent(c,80);trimmed.toBlob(b=>{if(!b){rej(new Error('trim failed'));return;}b.arrayBuffer().then(buf=>res(rewritePHYs(buf,dpi))).catch(rej);},'image/png');};img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('load'));};img.src=url;});
+const name=e.file.name.replace(/\.png$/i,'')+`_${dpi}dpi.png`;zip.add(name,data);done++;await setStatus(e.id,'done');}catch(err){errs++;await setStatus(e.id,'error');}}progLabel.textContent='ZIP生成中...';await new Promise(r=>setTimeout(r,50));try{zipBytes=zip.build();progFill.style.width='100%';const mb=(zipBytes.length/1024/1024).toFixed(1);document.getElementById('dl-sub').textContent=`${done}枚 · ${mb} MB`;dlCard.style.display='flex';progLabel.textContent=errs>0?`完了（${errs}件エラー）`:'完了！';document.getElementById('btn-text').textContent='もう一度変換する 🧺';}catch(err){progLabel.textContent='ZIP生成に失敗しました';}btn.disabled=false;});
 
 document.getElementById('dl-btn').addEventListener('click',()=>{if(!zipBytes)return;downloadZip(zipBytes,`dpidrop_${selDPI}dpi_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.zip`);});
 </script>
