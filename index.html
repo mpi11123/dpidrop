@@ -597,7 +597,7 @@ document.getElementById('main-btn').addEventListener('click', async ()=>{
 // ── Download (iOS Safari safe) ───────────────────────────
 document.getElementById('dl-btn').addEventListener('click',()=>{
   if(!zipBytes)return;
-  downloadZip(zipBytes, `converted_${selDPI}dpi.zip`);
+  downloadZip(zipBytes, `dpidrop_${selDPI}dpi_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.zip`);
 });
 </script>
 </body>
