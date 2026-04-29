@@ -5,417 +5,325 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>DpiDrop</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Alata&family=Nunito:wght@400;600;700;800;900&display=swap');
 
 :root {
-  --cream: #FAF7F2;
   --white: #FFFFFF;
-  --purple: #C4A8E8;
-  --purple-dark: #9B7FD4;
-  --purple-pale: #F0EAF8;
-  --purple-deep: #6B4FAA;
-  --pink: #F2B8C6;
-  --pink-pale: #FDE8EF;
-  --green: #7EC8A0;
-  --green-pale: #E8F8F0;
-  --yellow: #F5D87A;
-  --text: #2A1F3D;
-  --text-mid: #6B5E82;
-  --text-light: #A898C0;
-  --border: #E0D4F4;
+  --purple: #C0A8F0;
+  --purple-dark: #7B5CC8;
+  --purple-pale: #F0EAFF;
+  --purple-vivid: #9B70E0;
+  --pink: #F0A0C0;
+  --pink-pale: #FDE8F2;
+  --yellow: #F5D060;
+  --green: #70C890;
+  --green-pale: #E0F5E8;
+  --text: #4A3868;
+  --text-mid: #7A68A0;
+  --text-light: #B0A0CC;
+  --border: #D8CCF0;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
 body {
-  background: var(--cream);
+  background: #FFFFFF;
   color: var(--text);
   font-family: 'Nunito', -apple-system, sans-serif;
   min-height: 100vh;
   padding-bottom: 200px;
   -webkit-font-smoothing: antialiased;
   position: relative;
-  overflow-x: hidden;
 }
 
-/* Decorative blobs */
-body::before {
-  content: '';
+/* Hand-drawn check pattern background */
+.bg-pattern {
   position: fixed;
-  width: 280px; height: 280px;
-  background: var(--purple-pale);
-  border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%;
-  top: -80px; right: -80px;
+  inset: 0;
   z-index: 0;
   pointer-events: none;
-}
-body::after {
-  content: '';
-  position: fixed;
-  width: 200px; height: 200px;
-  background: var(--pink-pale);
-  border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%;
-  bottom: 160px; left: -60px;
-  z-index: 0;
-  pointer-events: none;
+  overflow: hidden;
 }
 
 .page { position: relative; z-index: 1; }
 
 /* ── Header ── */
 .header {
-  padding: 56px 24px 32px;
-  text-align: left;
-  position: relative;
-}
-
-.header-tag {
-  display: inline-block;
-  background: var(--purple);
-  color: var(--white);
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  padding: 5px 14px;
-  border-radius: 30px;
-  margin-bottom: 14px;
+  padding: 52px 24px 24px;
 }
 
 .header h1 {
-  font-size: 48px;
-  font-weight: 900;
+  font-family: 'Alata', sans-serif;
+  font-size: 54px;
+  font-weight: 400;
   color: var(--text);
   line-height: 1.0;
-  margin-bottom: 12px;
-  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
 }
 
-.header h1 .accent {
-  color: var(--purple-dark);
-  display: inline-block;
-  position: relative;
-}
-
-.header h1 .accent::after {
-  content: '';
-  position: absolute;
-  bottom: 2px; left: 0; right: 0;
-  height: 4px;
-  background: var(--yellow);
-  border-radius: 2px;
-}
+.header h1 .accent { color: var(--purple-vivid); }
 
 .header-sub {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-mid);
   line-height: 1.6;
-  max-width: 280px;
 }
 
-/* Wavy border SVG clip */
-.wavy-card {
-  position: relative;
-  margin: 0 20px;
-  background: var(--white);
-  border-radius: 24px;
-  border: 3px solid var(--purple);
-  padding: 36px 24px;
+/* ── Drop zone - white card with wavy border ── */
+.section { padding: 12px 20px 0; }
+
+.drop-zone {
+  background: var(--purple-pale);
+  border-radius: 0px;
+  padding: 40px 24px 32px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
-  /* Wavy effect via outline */
-  box-shadow:
-    0 0 0 6px var(--cream),
-    0 0 0 9px var(--purple);
+  border: 3.5px solid var(--purple);
+  box-shadow: 0 4px 24px rgba(155,112,224,0.12);
 }
 
-.wavy-card::before {
-  content: '';
-  position: absolute;
-  inset: -12px;
-  border-radius: 30px;
-  border: 3px solid var(--purple-pale);
-  pointer-events: none;
-}
-
-.wavy-card.active,
-.wavy-card:active {
-  background: var(--purple-pale);
+.drop-zone.active, .drop-zone:active {
+  background: #E0D4F8;
   border-color: var(--purple-dark);
-  box-shadow: 0 0 0 6px var(--cream), 0 0 0 9px var(--purple-dark);
 }
 
-.drop-emoji {
-  font-size: 44px;
-  margin-bottom: 14px;
+.drop-illustration {
+  width: 80px; height: 64px;
+  margin: 0 auto 14px;
   display: block;
-  filter: drop-shadow(0 4px 8px rgba(155,127,212,0.2));
 }
 
 .drop-main {
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--text);
-  margin-bottom: 6px;
-  letter-spacing: -0.01em;
+  font-size: 18px; font-weight: 900;
+  color: var(--text-mid); margin-bottom: 6px;
 }
 
 .drop-sub {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-light);
-  margin-bottom: 18px;
+  font-size: 14px; font-weight: 700;
+  color: var(--text-mid); margin-bottom: 18px;
 }
 
-.drop-pills {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
+.drop-pills { display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; }
 .drop-pill {
-  font-size: 10px;
-  font-weight: 800;
-  color: var(--purple-dark);
-  background: var(--purple-pale);
-  border-radius: 30px;
-  padding: 4px 12px;
-  letter-spacing: 0.04em;
+  font-size: 10px; font-weight: 800;
+  color: var(--purple-dark); background: var(--purple-pale);
+  border-radius: 30px; padding: 5px 14px;
+  letter-spacing: 0.04em; border: 1.5px solid var(--border);
 }
 
 #file-input { display: none; }
 
-/* ── Section ── */
-.section { padding: 18px 20px 0; }
-
 /* ── Settings card ── */
 .card {
   background: var(--white);
-  border-radius: 20px;
-  border: 2.5px solid var(--border);
-  padding: 20px;
-  box-shadow: 0 4px 20px rgba(155,127,212,0.08);
+  border-radius: 0px;
+  border: 3px solid var(--border);
+  padding: 22px 20px;
+  margin-top: 14px;
+  box-shadow: 0 4px 20px rgba(155,112,224,0.08);
 }
 
 .card-label {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--text-light);
-  margin-bottom: 14px;
+  font-size: 13px; font-weight: 800;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-mid); margin-bottom: 16px;
 }
 
-.pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+/* ── Heart buttons ── */
+.heart-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 
-.pill-btn {
-  flex: 1; min-width: 60px;
-  padding: 10px 8px;
-  border-radius: 30px;
-  border: 2.5px solid var(--border);
-  background: var(--cream);
+.heart-btn {
+  position: relative;
+  width: 72px; height: 66px;
+  cursor: pointer; border: none; background: none;
+  padding: 0; transition: transform 0.15s;
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+}
+.heart-btn:active { transform: scale(0.92); }
+.heart-btn svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.heart-btn .heart-fill {
+  fill: #F5F0FF; stroke: #D8CCF0; stroke-width: 2;
+  transition: fill 0.15s, stroke 0.15s;
+}.heart-btn .heart-label {
+  position: relative; z-index: 1;
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px; font-weight: 800;
   color: var(--text-mid);
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.15s;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.01em; margin-top: 4px;
+  line-height: 1.2; text-align: center;
 }
+.heart-btn.active .heart-label { color: #fff; }
 
-.pill-btn.active {
-  background: var(--purple-dark);
-  border-color: var(--purple-dark);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(107,79,170,0.3);
-  transform: translateY(-1px);
-}
-
-.pill-btn:active:not(.active) { background: var(--purple-pale); }
-
-.card-divider { height: 1.5px; background: var(--border); margin: 16px 0; }
+.card-divider { height: 2px; background: var(--border); margin: 20px 0; border-radius: 2px; }
 
 /* ── File list ── */
 .file-list-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
 }
-
-.file-total {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.file-total span {
-  color: var(--text-light);
-  font-weight: 600;
-}
-
+.file-total { font-size: 14px; font-weight: 800; color: var(--text); }
+.file-total span { color: var(--text-light); font-weight: 600; }
 .clear-btn {
-  background: var(--cream);
-  border: 2px solid var(--border);
-  border-radius: 20px;
-  padding: 5px 14px;
-  font-family: inherit;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--text-mid);
-  cursor: pointer;
-  transition: all 0.15s;
+  background: var(--white); border: 2px solid var(--border);
+  border-radius: 20px; padding: 5px 14px;
+  font-family: inherit; font-size: 11px; font-weight: 700;
+  color: var(--text-mid); cursor: pointer;
 }
-.clear-btn:active { background: var(--pink-pale); border-color: var(--pink); color: #B05070; }
+.clear-btn:active { background: var(--pink-pale); border-color: var(--pink); }
 
 .file-items { display: flex; flex-direction: column; gap: 8px; }
 
 .file-item {
-  background: var(--white);
-  border-radius: 16px;
+  background: var(--white); border-radius: 8px;
   border: 2.5px solid var(--border);
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(155,127,212,0.06);
+  padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  transition: all 0.2s; box-shadow: 0 2px 8px rgba(155,112,224,0.06);
 }
-.file-item.done { border-color: var(--green); background: var(--green-pale); }
+.file-item.done { border-color: #80D0A0; background: var(--green-pale); }
 .file-item.processing { border-color: var(--purple); background: var(--purple-pale); }
 .file-item.error { border-color: var(--pink); background: var(--pink-pale); }
 
 .file-thumb {
-  width: 48px; height: 48px;
-  border-radius: 12px;
+  width: 48px; height: 48px; border-radius: 12px;
   overflow: hidden; flex-shrink: 0;
   background: repeating-conic-gradient(#e8e0f0 0% 25%, #fff 0% 50%) 0 0 / 8px 8px;
   border: 2px solid var(--border);
 }
 .file-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
-
 .file-info { flex: 1; min-width: 0; }
 .file-name { font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
 .file-sz { font-size: 11px; font-weight: 600; color: var(--text-light); }
 
 .status-pill {
-  flex-shrink: 0;
-  font-size: 11px; font-weight: 800;
-  padding: 5px 12px;
-  border-radius: 20px;
-  border: 2px solid var(--border);
-  color: var(--text-light);
-  background: var(--cream);
-  white-space: nowrap;
-  letter-spacing: 0.02em;
+  flex-shrink: 0; font-size: 11px; font-weight: 800;
+  padding: 5px 12px; border-radius: 20px;
+  border: 2px solid var(--border); color: var(--text-light);
+  background: #F5F0FF; white-space: nowrap;
 }
-.status-pill.processing { color: var(--purple-deep); border-color: var(--purple); background: #fff; }
-.status-pill.done { color: #3A8A60; border-color: var(--green); background: #fff; }
-.status-pill.error { color: #B05070; border-color: var(--pink); background: #fff; }
+.status-pill.processing { color: var(--purple-dark); border-color: var(--purple); background: #fff; }
+.status-pill.done { color: #2A8050; border-color: #80D0A0; background: #fff; }
+.status-pill.error { color: #C03060; border-color: var(--pink); background: #fff; }
 
-.rm-btn { background: none; border: none; cursor: pointer; color: var(--border); font-size: 18px; padding: 2px 4px; line-height: 1; flex-shrink: 0; font-weight: 700; }
+.rm-btn { background: none; border: none; cursor: pointer; color: var(--border); font-size: 20px; padding: 2px 4px; line-height: 1; flex-shrink: 0; font-weight: 900; }
 .rm-btn:active { color: var(--purple-dark); }
 
-/* ── Note ── */
 .note {
-  background: var(--white);
-  border-radius: 16px;
-  border: 2px solid var(--border);
-  padding: 14px 16px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-mid);
-  line-height: 1.75;
+  background: none;
+  border-radius: 0;
+  border: none;
+  padding: 14px 4px;
+  margin-top: 8px;
+  font-size: 13px; font-weight: 600; color: var(--text-mid); line-height: 1.75;
 }
-.note strong { color: var(--purple-deep); font-weight: 800; }
+.note strong { color: #C05080; font-weight: 800; }
+.note strong { color: var(--purple-dark); font-weight: 800; }
 
 /* ── Sticky bottom ── */
 .action-area {
   position: fixed; bottom: 0; left: 0; right: 0;
-  background: rgba(250,247,242,0.96);
+  background: rgba(255,255,255,0.97);
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-  padding: 12px 20px 36px;
-  border-top: 2.5px solid var(--border);
+  padding: 12px 20px 36px; border-top: 2.5px solid var(--border);
   z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Download card */
 .dl-card {
   background: var(--white);
   border-radius: 18px;
-  border: 2.5px solid var(--green);
-  padding: 14px 16px;
-  display: none;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 10px;
-  box-shadow: 0 4px 16px rgba(126,200,160,0.2);
+  border: 3px solid #70C890;
+  padding: 14px 16px; display: none; align-items: center; gap: 14px; margin-bottom: 10px;
+  box-shadow: 0 4px 16px rgba(112,200,144,0.2);
 }
-.dl-emoji { font-size: 28px; flex-shrink: 0; }
+.dl-heart {
+  flex-shrink: 0;
+  width: 48px; height: 44px;
+  position: relative;
+}
+.dl-heart svg { width: 100%; height: 100%; }
 .dl-info { flex: 1; }
-.dl-title { font-size: 13px; font-weight: 800; color: var(--text); line-height: 1.3; margin-bottom: 2px; }
-.dl-sub { font-size: 11px; font-weight: 600; color: var(--text-light); }
+.dl-title { font-size: 14px; font-weight: 900; color: var(--text); line-height: 1.3; margin-bottom: 3px; }
+.dl-sub { font-size: 12px; font-weight: 700; color: var(--text-mid); }
 .dl-btn {
-  background: var(--green);
-  color: #fff;
-  border: none; border-radius: 30px;
-  padding: 11px 18px;
-  font-family: inherit; font-size: 13px; font-weight: 800;
+  background: #50B878; color: #fff; border: none; border-radius: 30px;
+  padding: 12px 20px; font-family: inherit; font-size: 14px; font-weight: 900;
   cursor: pointer; white-space: nowrap; flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(126,200,160,0.35);
-  transition: all 0.15s;
+  box-shadow: 0 4px 14px rgba(112,200,144,0.4);
+  border: 2.5px solid #30A060;
 }
-.dl-btn:active { background: #5AAA80; transform: scale(0.97); }
+.dl-btn:active { background: #30A060; transform: scale(0.97); }
 
-/* Progress */
 .prog-row { display: none; align-items: center; gap: 10px; margin-bottom: 10px; }
 .prog-bg { flex: 1; height: 6px; background: var(--border); border-radius: 10px; overflow: hidden; }
-.prog-fill { height: 100%; background: linear-gradient(90deg, var(--purple-dark), var(--purple)); border-radius: 10px; width: 0%; transition: width 0.3s ease; }
-.prog-label { font-size: 11px; font-weight: 700; color: var(--text-mid); white-space: nowrap; min-width: 54px; text-align: right; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--purple-dark), var(--purple-vivid)); border-radius: 10px; width: 0%; transition: width 0.3s ease; }
+.prog-label { font-size: 11px; font-weight: 800; color: var(--text-mid); white-space: nowrap; min-width: 54px; text-align: right; }
 
-/* Main button */
 .main-btn {
-  width: 100%; padding: 18px;
-  background: var(--purple-dark);
-  color: #fff; border: none; border-radius: 30px;
-  font-family: inherit; font-size: 17px; font-weight: 900;
-  letter-spacing: 0.01em; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  box-shadow: 0 6px 24px rgba(107,79,170,0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 28px;
+  background: #9B7FD4;
+  color: #FFFFFF !important;
+  border: none;
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(155,127,212,0.4);
   transition: all 0.2s;
+  -webkit-font-smoothing: antialiased;
+  white-space: nowrap;
 }
-.main-btn:active:not(:disabled) {
-  transform: scale(0.98) translateY(1px);
-  box-shadow: 0 2px 10px rgba(107,79,170,0.2);
-}
-.main-btn:disabled {
-  background: var(--border);
-  color: var(--text-light);
-  box-shadow: none;
-  cursor: not-allowed;
-}
+.main-btn:active:not(:disabled) { transform: scale(0.98); box-shadow: 0 2px 10px rgba(107,72,184,0.2); }
+.main-btn:disabled { background: var(--border); color: var(--text-light) !important; box-shadow: none; cursor: not-allowed; }
 </style>
 </head>
 <body>
-<div class="page">
 
+<!-- Hand-drawn check background -->
+<div class="bg-pattern">
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <pattern id="check" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+    <!-- Horizontal pink lines - slightly wobbly -->
+    <path d="M0 10 Q5 9.2 10 10 Q15 10.8 20 10 Q25 9.2 30 10 Q35 10.8 40 10" stroke="#F9C0CC" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M0 30 Q5 29.2 10 30 Q15 30.8 20 30 Q25 29.2 30 30 Q35 30.8 40 30" stroke="#F9C0CC" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <!-- Vertical green lines - slightly wobbly -->
+    <path d="M10 0 Q9.2 5 10 10 Q10.8 15 10 20 Q9.2 25 10 30 Q10.8 35 10 40" stroke="#B8D8B0" stroke-width="0.8" fill="none" opacity="0.6"/>
+    <path d="M30 0 Q29.2 5 30 10 Q30.8 15 30 20 Q29.2 25 30 30 Q30.8 35 30 40" stroke="#B8D8B0" stroke-width="0.8" fill="none" opacity="0.6"/>
+  </pattern>
+</defs>
+<rect width="100%" height="100%" fill="url(#check)"/>
+</svg>
+</div>
+
+<div class="page">
 <!-- Header -->
 <div class="header">
-  <div class="header-tag">✦ Etsy Clipart Tool</div>
   <h1>Dpi<span class="accent">Drop</span></h1>
   <p class="header-sub">PNGを高解像度・大サイズに変換してZIPダウンロード</p>
 </div>
 
 <!-- Drop zone -->
 <div class="section" style="padding-top:0">
-  <div class="wavy-card" id="drop-zone">
-    <span class="drop-emoji">🧸</span>
-    <div class="drop-main">PNGをタップして選択</div>
-    <div class="drop-sub">複数ファイル一括対応</div>
+  <div class="drop-zone" id="drop-zone">
+    <div style="margin: 0 auto 14px; width: 90px; height: 82px;">
+      <svg viewBox="0 0 90 82" fill="none" xmlns="http://www.w3.org/2000/svg" width="90" height="82">
+        <path d="M45 72 C44 72 8 50 8 27 C8 15 17 8 26 10 C32 11 38 15 45 23 C52 15 58 11 64 10 C73 8 82 15 82 27 C82 50 46 72 45 72Z" fill="#F9C8D8" stroke="#E090A8" stroke-width="2"/>
+        <text x="45" y="40" text-anchor="middle" font-family="Alata, sans-serif" font-size="13" fill="#C05070" letter-spacing="0.5">Dpi</text>
+        <text x="45" y="55" text-anchor="middle" font-family="Alata, sans-serif" font-size="13" fill="#C05070" letter-spacing="0.5">Drop</text>
+      </svg>
+    </div>
+    <div class="drop-main">ここをタップして画像を選択</div>
+    <div class="drop-sub">またはドラッグ＆ドロップ</div>
     <div class="drop-pills">
       <span class="drop-pill">PNG</span>
       <span class="drop-pill">複数対応</span>
@@ -429,20 +337,44 @@ body::after {
 <!-- Settings -->
 <div class="section">
   <div class="card">
-    <div class="card-label">解像度</div>
-    <div class="pill-group">
-      <button class="pill-btn" data-dpi="72">72 dpi</button>
-      <button class="pill-btn" data-dpi="150">150 dpi</button>
-      <button class="pill-btn active" data-dpi="300">300 dpi</button>
-      <button class="pill-btn" data-dpi="600">600 dpi</button>
+    <div class="card-label">解像度を選択</div>
+    <div class="heart-group" id="dpi-group">
+      <button class="heart-btn" data-dpi="72" data-hc="#F9A8C0" data-hs="#E8607A">
+        <svg viewBox="0 0 72 66"><path class="heart-fill" d="M36 58 C36 58 8 42 8 24 C8 14 16 8 24 10 C29 11 33 14 36 18 C39 14 43 11 48 10 C56 8 64 14 64 24 C64 42 36 58 36 58Z"/></svg>
+        <span class="heart-label">72<br>dpi</span>
+      </button>
+      <button class="heart-btn" data-dpi="150" data-hc="#FFE08A" data-hs="#E8C850">
+        <svg viewBox="0 0 72 66"><path class="heart-fill" d="M36 58 C36 58 8 42 8 24 C8 14 16 8 24 10 C29 11 33 14 36 18 C39 14 43 11 48 10 C56 8 64 14 64 24 C64 42 36 58 36 58Z"/></svg>
+        <span class="heart-label">150<br>dpi</span>
+      </button>
+      <button class="heart-btn active" data-dpi="300" data-hc="#C4A8E8" data-hs="#7B5CC8">
+        <svg viewBox="0 0 72 66"><path class="heart-fill" d="M36 58 C36 58 8 42 8 24 C8 14 16 8 24 10 C29 11 33 14 36 18 C39 14 43 11 48 10 C56 8 64 14 64 24 C64 42 36 58 36 58Z"/></svg>
+        <span class="heart-label">300<br>dpi</span>
+      </button>
+      <button class="heart-btn" data-dpi="600" data-hc="#90D8B8" data-hs="#30A870">
+        <svg viewBox="0 0 72 66"><path class="heart-fill" d="M36 58 C36 58 8 42 8 24 C8 14 16 8 24 10 C29 11 33 14 36 18 C39 14 43 11 48 10 C56 8 64 14 64 24 C64 42 36 58 36 58Z"/></svg>
+        <span class="heart-label">600<br>dpi</span>
+      </button>
     </div>
     <div class="card-divider"></div>
     <div class="card-label">目標サイズ（長辺）</div>
-    <div class="pill-group">
-      <button class="pill-btn active" data-size="0">そのまま</button>
-      <button class="pill-btn" data-size="2000">2000px</button>
-      <button class="pill-btn" data-size="3000">3000px</button>
-      <button class="pill-btn" data-size="4000">4000px ✦</button>
+    <div class="heart-group" id="size-group">
+      <button class="heart-btn active" data-size="0" data-hc="#C4A8E8" data-hs="#9B70E0">
+        <svg viewBox="0 0 72 66"><path class="heart-fill" d="M36 58 C36 58 8 42 8 24 C8 14 16 8 24 10 C29 11 33 14 36 18 C39 14 43 11 48 10 C56 8 64 14 64 24 C64 42 36 58 36 58Z"/></svg>
+        <span class="heart-label">OFF</span>
+      </button>
+      <button class="heart-btn" data-size="2000" data-hc="#FFB8D0" data-hs="#E8607A">
+        <svg viewBox="0 0 72 66"><path class="heart-fill" d="M36 58 C36 58 8 42 8 24 C8 14 16 8 24 10 C29 11 33 14 36 18 C39 14 43 11 48 10 C56 8 64 14 64 24 C64 42 36 58 36 58Z"/></svg>
+        <span class="heart-label">2000<br>px</span>
+      </button>
+      <button class="heart-btn" data-size="3000" data-hc="#A8E0F0" data-hs="#40B0D0">
+        <svg viewBox="0 0 72 66"><path class="heart-fill" d="M36 58 C36 58 8 42 8 24 C8 14 16 8 24 10 C29 11 33 14 36 18 C39 14 43 11 48 10 C56 8 64 14 64 24 C64 42 36 58 36 58Z"/></svg>
+        <span class="heart-label">3000<br>px</span>
+      </button>
+      <button class="heart-btn" data-size="4000" data-hc="#F8C8A0" data-hs="#E08040">
+        <svg viewBox="0 0 72 66"><path class="heart-fill" d="M36 58 C36 58 8 42 8 24 C8 14 16 8 24 10 C29 11 33 14 36 18 C39 14 43 11 48 10 C56 8 64 14 64 24 C64 42 36 58 36 58Z"/></svg>
+        <span class="heart-label">4000<br>px</span>
+      </button>
     </div>
   </div>
 </div>
@@ -457,9 +389,16 @@ body::after {
 </div>
 
 <!-- Note -->
-<div class="section" style="padding-bottom: 14px;">
+<div class="section" style="padding-bottom: 16px;">
   <div class="note">
-    <strong>メモ：</strong> PNGの解像度メタデータを書き換えます。ピクセル数・透過情報はそのまま保持されます。ファイル名は <strong>元のファイル名_300dpi.png</strong> で保存されます。
+    <div style="color:var(--purple-dark);font-weight:800;font-size:14px;margin-bottom:8px;">note.</div>
+    <ul style="list-style:none; padding:0; margin:0;">
+      <li style="margin-bottom:6px;">・ 解像度メタデータ（dpi）を書き換えます</li>
+      <li style="margin-bottom:6px;">・ 透過情報はそのまま保持されます</li>
+      <li style="margin-bottom:6px;">・ アップスケール選択時はピクセル数も変わります</li>
+      <li style="margin-bottom:6px;">・ PNG名：<span style="color:#C05080;font-weight:800;">元のファイル名_300dpi.png</span></li>
+      <li>・ ZIP名：<span style="color:#C05080;font-weight:800;">dpidrop_300dpi_日付.zip</span></li>
+    </ul>
   </div>
 </div>
 
@@ -468,9 +407,9 @@ body::after {
 <!-- Sticky bottom -->
 <div class="action-area">
   <div class="dl-card" id="dl-card">
-    <div class="dl-emoji">🧺</div>
+    <div style="font-size: 32px; flex-shrink: 0;">🧺</div>
     <div class="dl-info">
-      <div class="dl-title">ZIPファイルの準備が<br>できました</div>
+      <div class="dl-title">ZIP 準備完了！</div>
       <div class="dl-sub" id="dl-sub"></div>
     </div>
     <button class="dl-btn" id="dl-btn">ダウンロード</button>
@@ -480,142 +419,31 @@ body::after {
     <div class="prog-label" id="prog-label"></div>
   </div>
   <button class="main-btn" id="main-btn" disabled>
-    <span id="btn-text">変換して ZIP ダウンロード</span><span>🧁</span>
+    <span id="btn-text" style="color:#fff;">変換して ZIP ダウンロード</span><span style="color:#fff; font-size:18px;">🧺</span>
   </button>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════
-// ZIP builder (no deps)
-// ═══════════════════════════════════════════════
-const ZIP = (() => {
-  const enc = new TextEncoder();
-  function crc32(d) {
-    const T = (() => { const t=new Uint32Array(256); for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;} return t; })();
-    let c=0xFFFFFFFF; for(let i=0;i<d.length;i++) c=T[(c^d[i])&0xFF]^(c>>>8); return(c^0xFFFFFFFF)>>>0;
-  }
-  function u16(n){return[n&0xFF,(n>>8)&0xFF];}
-  function u32(n){return[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];}
-  function cat(...a){const t=a.reduce((s,x)=>s+x.length,0);const o=new Uint8Array(t);let p=0;for(const x of a){o.set(x,p);p+=x.length;}return o;}
-  return {
-    create(){
-      const files=[];
-      return {
-        add(name,data){const nb=enc.encode(name);files.push({nb,crc:crc32(data),size:data.length,data});},
-        build(){
-          const locals=[],cdirs=[];let off=0;
-          for(const f of files){
-            const lh=new Uint8Array([0x50,0x4B,0x03,0x04,...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(f.crc),...u32(f.size),...u32(f.size),...u16(f.nb.length),...u16(0)]);
-            const local=cat(lh,f.nb,f.data);
-            const cd=new Uint8Array([0x50,0x4B,0x01,0x02,...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(f.crc),...u32(f.size),...u32(f.size),...u16(f.nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]);
-            locals.push(local);cdirs.push(cat(cd,f.nb));off+=local.length;
-          }
-          const cdir=cat(...cdirs);
-          const eocd=new Uint8Array([0x50,0x4B,0x05,0x06,...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cdir.length),...u32(off),...u16(0)]);
-          return cat(...locals,cdir,eocd);
-        }
-      };
-    }
-  };
-})();
+const ZIP=(()=>{const enc=new TextEncoder();function crc32(d){const T=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;}return t;})();let c=0xFFFFFFFF;for(let i=0;i<d.length;i++)c=T[(c^d[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}function u16(n){return[n&0xFF,(n>>8)&0xFF];}function u32(n){return[n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF];}function cat(...a){const t=a.reduce((s,x)=>s+x.length,0);const o=new Uint8Array(t);let p=0;for(const x of a){o.set(x,p);p+=x.length;}return o;}return{create(){const files=[];return{add(name,data){const nb=enc.encode(name);files.push({nb,crc:crc32(data),size:data.length,data});},build(){const locals=[],cdirs=[];let off=0;for(const f of files){const lh=new Uint8Array([0x50,0x4B,0x03,0x04,...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(f.crc),...u32(f.size),...u32(f.size),...u16(f.nb.length),...u16(0)]);const local=cat(lh,f.nb,f.data);const cd=new Uint8Array([0x50,0x4B,0x01,0x02,...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(f.crc),...u32(f.size),...u32(f.size),...u16(f.nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]);locals.push(local);cdirs.push(cat(cd,f.nb));off+=local.length;}const cdir=cat(...cdirs);const eocd=new Uint8Array([0x50,0x4B,0x05,0x06,...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cdir.length),...u32(off),...u16(0)]);return cat(...locals,cdir,eocd);}};}}})();
 
-// ═══════════════════════════════════════════════
-// PNG pHYs rewriter
-// ═══════════════════════════════════════════════
 const CRCT=(()=>{const t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[i]=c;}return t;})();
 function pcrc(b){let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=CRCT[(c^b[i])&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
 function b32(n){return new Uint8Array([(n>>>24)&0xFF,(n>>>16)&0xFF,(n>>>8)&0xFF,n&0xFF]);}
 function cat2(...a){const t=a.reduce((s,x)=>s+x.length,0);const o=new Uint8Array(t);let p=0;for(const x of a){o.set(x,p);p+=x.length;}return o;}
 
-function rewritePHYs(ab,dpi){
-  const ppm=Math.round(dpi/0.0254);
-  const src=new Uint8Array(ab);
-  let pos=8;const chunks=[];
-  while(pos<src.length){
-    if(pos+8>src.length)break;
-    const len=((src[pos]<<24)|(src[pos+1]<<16)|(src[pos+2]<<8)|src[pos+3])>>>0;
-    const type=String.fromCharCode(src[pos+4],src[pos+5],src[pos+6],src[pos+7]);
-    const tot=4+4+len+4;
-    if(pos+tot>src.length)break;
-    chunks.push({type,start:pos,tot});pos+=tot;
-  }
-  const pt=new Uint8Array([0x70,0x48,0x59,0x73]);
-  const pd=new Uint8Array([...b32(ppm),...b32(ppm),1]);
-  const np=cat2(b32(9),pt,pd,b32(pcrc(cat2(pt,pd))));
-  const parts=[src.slice(0,8)];let inj=false;
-  for(const c of chunks){
-    if(c.type==='pHYs')continue;
-    parts.push(src.slice(c.start,c.start+c.tot));
-    if(c.type==='IHDR'&&!inj){parts.push(np);inj=true;}
-  }
-  if(!inj)parts.splice(1,0,np);
-  return cat2(...parts);
-}
+function rewritePHYs(ab,dpi){const ppm=Math.round(dpi/0.0254);const src=new Uint8Array(ab);let pos=8;const chunks=[];while(pos<src.length){if(pos+8>src.length)break;const len=((src[pos]<<24)|(src[pos+1]<<16)|(src[pos+2]<<8)|src[pos+3])>>>0;const type=String.fromCharCode(src[pos+4],src[pos+5],src[pos+6],src[pos+7]);const tot=4+4+len+4;if(pos+tot>src.length)break;chunks.push({type,start:pos,tot});pos+=tot;}const pt=new Uint8Array([0x70,0x48,0x59,0x73]);const pd=new Uint8Array([...b32(ppm),...b32(ppm),1]);const np=cat2(b32(9),pt,pd,b32(pcrc(cat2(pt,pd))));const parts=[src.slice(0,8)];let inj=false;for(const c of chunks){if(c.type==='pHYs')continue;parts.push(src.slice(c.start,c.start+c.tot));if(c.type==='IHDR'&&!inj){parts.push(np);inj=true;}}if(!inj)parts.splice(1,0,np);return cat2(...parts);}
 
-// ═══════════════════════════════════════════════
-// Upscale
-// ═══════════════════════════════════════════════
-function upscaleImage(file,targetPx){
-  return new Promise((resolve,reject)=>{
-    const img=new Image();
-    const url=URL.createObjectURL(file);
-    img.onload=()=>{
-      URL.revokeObjectURL(url);
-      const longer=Math.max(img.width,img.height);
-      if(longer>=targetPx){resolve(null);return;}
-      const scale=targetPx/longer;
-      const w=Math.round(img.width*scale);
-      const h=Math.round(img.height*scale);
-      const canvas=document.createElement('canvas');
-      canvas.width=w;canvas.height=h;
-      const ctx=canvas.getContext('2d');
-      ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
-      ctx.drawImage(img,0,0,w,h);
-      canvas.toBlob(blob=>{
-        if(!blob){reject(new Error('canvas failed'));return;}
-        blob.arrayBuffer().then(buf=>resolve(new Uint8Array(buf))).catch(reject);
-      },'image/png');
-    };
-    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('load failed'));};
-    img.src=url;
-  });
-}
+function upscaleImage(file,targetPx){return new Promise((resolve,reject)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);const longer=Math.max(img.width,img.height);if(longer>=targetPx){resolve(null);return;}const scale=targetPx/longer;const w=Math.round(img.width*scale);const h=Math.round(img.height*scale);const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,w,h);canvas.toBlob(blob=>{if(!blob){reject(new Error('canvas failed'));return;}blob.arrayBuffer().then(buf=>resolve(new Uint8Array(buf))).catch(reject);},'image/png');};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('load failed'));};img.src=url;});}
 
-// ═══════════════════════════════════════════════
-// Download
-// ═══════════════════════════════════════════════
-function downloadZip(bytes,filename){
-  let binary='';
-  const chunkSize=8192;
-  for(let i=0;i<bytes.length;i+=chunkSize){
-    const chunk=bytes.subarray(i,i+chunkSize);
-    binary+=String.fromCharCode.apply(null,chunk);
-  }
-  const base64=btoa(binary);
-  const dataUrl='data:application/zip;base64,'+base64;
-  const a=document.createElement('a');
-  a.href=dataUrl;a.download=filename;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-}
+function downloadZip(bytes,filename){let binary='';const chunkSize=8192;for(let i=0;i<bytes.length;i+=chunkSize){const chunk=bytes.subarray(i,i+chunkSize);binary+=String.fromCharCode.apply(null,chunk);}const base64=btoa(binary);const dataUrl='data:application/zip;base64,'+base64;const a=document.createElement('a');a.href=dataUrl;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);}
 
-// ═══════════════════════════════════════════════
-// UI
-// ═══════════════════════════════════════════════
 let files=[],zipBytes=null,uid=0,selDPI=300,selSize=0;
 
-document.querySelectorAll('[data-dpi]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('[data-dpi]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');selDPI=parseInt(btn.dataset.dpi);
-  });
-});
+function updateHeartColors(){document.querySelectorAll('.heart-btn').forEach(btn=>{const fill=btn.querySelector('.heart-fill');const hc=btn.dataset.hc||'#C4A8E8';const hs=btn.dataset.hs||'#7B5CC8';if(btn.classList.contains('active')){fill.style.fill=hc;fill.style.stroke=hs;fill.style.strokeWidth='2.5';}else{fill.style.fill=hc+'55';fill.style.stroke=hc;fill.style.strokeWidth='2';}});}
 
-document.querySelectorAll('[data-size]').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('[data-size]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');selSize=parseInt(btn.dataset.size);
-  });
-});
+document.querySelectorAll('[data-dpi]').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('[data-dpi]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selDPI=parseInt(btn.dataset.dpi);updateHeartColors();});});
+document.querySelectorAll('[data-size]').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('[data-size]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selSize=parseInt(btn.dataset.size);updateHeartColors();});});
+updateHeartColors();
 
 const dz=document.getElementById('drop-zone');
 const fi=document.getElementById('file-input');
@@ -625,137 +453,20 @@ dz.addEventListener('dragleave',()=>dz.classList.remove('active'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('active');addFiles([...e.dataTransfer.files].filter(f=>f.type==='image/png'));});
 fi.addEventListener('change',()=>{addFiles([...fi.files]);fi.value='';});
 
-function addFiles(nf){
-  nf.forEach(f=>files.push({file:f,id:uid++,url:URL.createObjectURL(f),status:'waiting'}));
-  render();syncBtn();resetDL();
-}
-function removeFile(id){
-  const i=files.findIndex(e=>e.id===id);
-  if(i!==-1){URL.revokeObjectURL(files[i].url);files.splice(i,1);}
-  render();syncBtn();resetDL();
-}
-function clearAll(){
-  files.forEach(e=>URL.revokeObjectURL(e.url));files=[];
-  render();syncBtn();resetDL();
-}
+function addFiles(nf){nf.forEach(f=>files.push({file:f,id:uid++,url:URL.createObjectURL(f),status:'waiting'}));render();syncBtn();resetDL();}
+function removeFile(id){const i=files.findIndex(e=>e.id===id);if(i!==-1){URL.revokeObjectURL(files[i].url);files.splice(i,1);}render();syncBtn();resetDL();}
+function clearAll(){files.forEach(e=>URL.revokeObjectURL(e.url));files=[];render();syncBtn();resetDL();}
 
-function render(){
-  const sec=document.getElementById('file-section');
-  const items=document.getElementById('file-items');
-  const tot=document.getElementById('file-total');
-  sec.style.display=files.length?'block':'none';
-  const mb=(files.reduce((s,e)=>s+e.file.size,0)/1024/1024).toFixed(1);
-  tot.innerHTML=`${files.length}枚 <span>· ${mb} MB</span>`;
-  items.innerHTML='';
-  files.forEach(e=>{
-    const kb=Math.round(e.file.size/1024);
-    const sz=kb>=1024?`${(kb/1024).toFixed(1)} MB`:`${kb} KB`;
-    const lbl={waiting:'待機中',processing:'変換中...',done:'✓ 完了',error:'エラー'};
-    const d=document.createElement('div');
-    d.className=`file-item${e.status!=='waiting'?' '+e.status:''}`;
-    d.id=`fi-${e.id}`;
-    d.innerHTML=`
-      <div class="file-thumb"><img src="${e.url}" loading="lazy"></div>
-      <div class="file-info">
-        <div class="file-name">${e.file.name}</div>
-        <div class="file-sz">${sz}</div>
-      </div>
-      <span class="status-pill ${e.status}" id="sp-${e.id}">${lbl[e.status]}</span>
-      <button class="rm-btn" onclick="removeFile(${e.id})">×</button>
-    `;
-    items.appendChild(d);
-  });
-}
+function render(){const sec=document.getElementById('file-section');const items=document.getElementById('file-items');const tot=document.getElementById('file-total');sec.style.display=files.length?'block':'none';const mb=(files.reduce((s,e)=>s+e.file.size,0)/1024/1024).toFixed(1);tot.innerHTML=`${files.length}枚 <span>· ${mb} MB</span>`;items.innerHTML='';files.forEach(e=>{const kb=Math.round(e.file.size/1024);const sz=kb>=1024?`${(kb/1024).toFixed(1)} MB`:`${kb} KB`;const lbl={waiting:'待機中',processing:'変換中...',done:'✓ 完了',error:'エラー'};const d=document.createElement('div');d.className=`file-item${e.status!=='waiting'?' '+e.status:''}`;d.id=`fi-${e.id}`;d.innerHTML=`<div class="file-thumb"><img src="${e.url}" loading="lazy"></div><div class="file-info"><div class="file-name">${e.file.name}</div><div class="file-sz">${sz}</div></div><span class="status-pill ${e.status}" id="sp-${e.id}">${lbl[e.status]}</span><button class="rm-btn" onclick="removeFile(${e.id})">×</button>`;items.appendChild(d);});}
 
-function setStatus(id,st){
-  return new Promise(resolve=>{
-    const e=files.find(f=>f.id===id);if(e)e.status=st;
-    const item=document.getElementById(`fi-${id}`);
-    const pill=document.getElementById(`sp-${id}`);
-    if(!item||!pill){resolve();return;}
-    const lbl={waiting:'待機中',processing:'変換中...',done:'✓ 完了',error:'エラー'};
-    item.className=`file-item${st!=='waiting'?' '+st:''}`;
-    pill.className=`status-pill ${st}`;
-    pill.textContent=lbl[st]||st;
-    requestAnimationFrame(()=>requestAnimationFrame(resolve));
-  });
-}
+function setStatus(id,st){return new Promise(resolve=>{const e=files.find(f=>f.id===id);if(e)e.status=st;const item=document.getElementById(`fi-${id}`);const pill=document.getElementById(`sp-${id}`);if(!item||!pill){resolve();return;}const lbl={waiting:'待機中',processing:'変換中...',done:'✓ 完了',error:'エラー'};item.className=`file-item${st!=='waiting'?' '+st:''}`;pill.className=`status-pill ${st}`;pill.textContent=lbl[st]||st;requestAnimationFrame(()=>requestAnimationFrame(resolve));});}
 
 function syncBtn(){document.getElementById('main-btn').disabled=files.length===0;}
 function resetDL(){zipBytes=null;document.getElementById('dl-card').style.display='none';document.getElementById('btn-text').textContent='変換して ZIP ダウンロード';}
 
-document.getElementById('main-btn').addEventListener('click',async()=>{
-  if(!files.length)return;
-  const dpi=selDPI;
-  const btn=document.getElementById('main-btn');
-  const progRow=document.getElementById('prog-row');
-  const progFill=document.getElementById('prog-fill');
-  const progLabel=document.getElementById('prog-label');
-  const dlCard=document.getElementById('dl-card');
+document.getElementById('main-btn').addEventListener('click',async()=>{if(!files.length)return;const dpi=selDPI;const btn=document.getElementById('main-btn');const progRow=document.getElementById('prog-row');const progFill=document.getElementById('prog-fill');const progLabel=document.getElementById('prog-label');const dlCard=document.getElementById('dl-card');btn.disabled=true;progRow.style.display='flex';progFill.style.width='0%';dlCard.style.display='none';zipBytes=null;for(const e of files)await setStatus(e.id,'waiting');const zip=ZIP.create();let done=0,errs=0;for(let i=0;i<files.length;i++){const e=files[i];await setStatus(e.id,'processing');document.getElementById(`fi-${e.id}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});progLabel.textContent=`${i+1} / ${files.length}`;progFill.style.width=`${Math.round(i/files.length*88)}%`;await new Promise(r=>setTimeout(r,80));try{let data;if(selSize>0){try{const up=await upscaleImage(e.file,selSize);data=rewritePHYs(up?up.buffer:await e.file.arrayBuffer(),dpi);}catch(ue){data=rewritePHYs(await e.file.arrayBuffer(),dpi);}}else{data=rewritePHYs(await e.file.arrayBuffer(),dpi);}const name=e.file.name.replace(/\.png$/i,'')+`_${dpi}dpi.png`;zip.add(name,data);done++;await setStatus(e.id,'done');}catch(err){errs++;await setStatus(e.id,'error');}}progLabel.textContent='ZIP生成中...';await new Promise(r=>setTimeout(r,50));try{zipBytes=zip.build();progFill.style.width='100%';const mb=(zipBytes.length/1024/1024).toFixed(1);document.getElementById('dl-sub').textContent=`${done}枚 · ${mb} MB`;dlCard.style.display='flex';progLabel.textContent=errs>0?`完了（${errs}件エラー）`:'完了！';document.getElementById('btn-text').textContent='もう一度変換する 🧺';}catch(err){progLabel.textContent='ZIP生成に失敗しました';}btn.disabled=false;});
 
-  btn.disabled=true;
-  progRow.style.display='flex';
-  progFill.style.width='0%';
-  dlCard.style.display='none';
-  zipBytes=null;
-
-  for(const e of files) await setStatus(e.id,'waiting');
-
-  const zip=ZIP.create();
-  let done=0,errs=0;
-
-  for(let i=0;i<files.length;i++){
-    const e=files[i];
-    await setStatus(e.id,'processing');
-    document.getElementById(`fi-${e.id}`)?.scrollIntoView({behavior:'smooth',block:'nearest'});
-    progLabel.textContent=`${i+1} / ${files.length}`;
-    progFill.style.width=`${Math.round(i/files.length*88)}%`;
-    await new Promise(r=>setTimeout(r,80));
-
-    try{
-      let data;
-      if(selSize>0){
-        try{
-          const up=await upscaleImage(e.file,selSize);
-          data=rewritePHYs(up?up.buffer:await e.file.arrayBuffer(),dpi);
-        }catch(ue){
-          console.warn('upscale failed:',ue);
-          data=rewritePHYs(await e.file.arrayBuffer(),dpi);
-        }
-      }else{
-        data=rewritePHYs(await e.file.arrayBuffer(),dpi);
-      }
-      const name=e.file.name.replace(/\.png$/i,'')+`_${dpi}dpi.png`;
-      zip.add(name,data);done++;
-      await setStatus(e.id,'done');
-    }catch(err){
-      console.error(e.file.name,err);errs++;
-      await setStatus(e.id,'error');
-    }
-  }
-
-  progLabel.textContent='ZIP生成中...';
-  await new Promise(r=>setTimeout(r,50));
-
-  try{
-    zipBytes=zip.build();
-    progFill.style.width='100%';
-    const mb=(zipBytes.length/1024/1024).toFixed(1);
-    document.getElementById('dl-sub').textContent=`${done}枚 · ${mb} MB`;
-    dlCard.style.display='flex';
-    progLabel.textContent=errs>0?`完了（${errs}件エラー）`:'完了！';
-    document.getElementById('btn-text').textContent='もう一度変換する 🧁';
-  }catch(err){
-    progLabel.textContent='ZIP生成に失敗しました';
-    console.error(err);
-  }
-  btn.disabled=false;
-});
-
-document.getElementById('dl-btn').addEventListener('click',()=>{
-  if(!zipBytes)return;
-  downloadZip(zipBytes,`dpidrop_${selDPI}dpi_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.zip`);
-});
+document.getElementById('dl-btn').addEventListener('click',()=>{if(!zipBytes)return;downloadZip(zipBytes,`dpidrop_${selDPI}dpi_${new Date().toISOString().slice(0,10).replace(/-/g,'')}.zip`);});
 </script>
 </body>
 </html>
