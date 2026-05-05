@@ -473,7 +473,7 @@ function trimTransparent(canvas, padding) {
   const th = bottom - top + 1 + padding * 2;
   const out = document.createElement('canvas');
   out.width = tw; out.height = th;
-  out.getContext('2d').drawImage(canvas, left - padding, top - padding, tw, th, 0, 0, tw, th);
+  out.getContext('2d').drawImage(canvas, left, top, right - left + 1, bottom - top + 1, padding, padding, right - left + 1, bottom - top + 1);
   return out;
 }
 
